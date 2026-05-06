@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+import bgImage from "../assets/generalbackground.png"; // adjust path as needed
+
 
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString("en-US", {
@@ -305,189 +307,216 @@ async function toggleWatchlist() {
   }
 
   return (
-    <div style={{ padding: "20px" }}>
-      {/* <Link to="/dashboard">← Back to Dashboard</Link> */}
+    <div
+  className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed px-6 py-10"
+  style={{ backgroundImage: `url(${bgImage})` }}
+>
+  <div className="max-w-5xl mx-auto bg-gray-800/90 rounded-2xl border border-gray-600 p-6">
 
-      <h1>{anime.title}</h1>
+    {/* Title */}
+    <h1 className="text-3xl font-bold text-white mb-4">
+      {anime.title}
+    </h1>
 
-      {currentUser ? (
-        <button
-          onClick={toggleWatchlist}
-          disabled={watchlistLoading}
-          style={{ marginBottom: "20px", padding: "8px 12px", cursor: "pointer", borderRadius: "8px" }}
-        >
-          {watchlistLoading
-            ? "Updating..."
-            : inWatchlist
-              ? "Remove from Watchlist"
-              : "Add to Watchlist"}
-        </button>
-      ) : (
-        <p style={{ marginBottom: "20px", fontStyle: "italic", color: "#888" }}>
-          <Link to="/signin">Log in</Link> to add this to your watchlist.
-        </p>
-      )}
+    {/* Watchlist Button */}
+    {currentUser ? (
+      <button
+        onClick={toggleWatchlist}
+        disabled={watchlistLoading}
+        className="mb-6 px-5 py-2 rounded-full bg-gray-300/90 text-black font-semibold border border-gray-400 hover:bg-gray-200 transition disabled:opacity-60"
+      >
+        {watchlistLoading
+          ? "Updating..."
+          : inWatchlist
+            ? "Remove from Watchlist"
+            : "Add to Watchlist"}
+      </button>
+    ) : (
+      <p className="mb-6 text-gray-300 italic">
+        <Link to="/signin" className="text-blue-300 hover:underline">
+          Log in
+        </Link>{" "}
+        to add this to your watchlist.
+      </p>
+    )}
+
+    {/* 🔥 IMAGE + INFO SIDE BY SIDE */}
+    <div className="flex flex-col md:flex-row gap-6 mb-6">
 
       {anime.images?.jpg?.image_url && (
         <img
           src={anime.images.jpg.image_url}
           alt={anime.title}
-          width="200"
-          style={{ borderRadius: "8px", marginBottom: "20px" }}
+          className="w-[200px] h-auto rounded-lg border border-gray-500"
         />
       )}
 
-      <p><strong>Score:</strong> {anime.score ?? "N/A"}</p>
-      <p><strong>Episodes:</strong> {anime.episodes ?? "Unknown"}</p>
-      <p><strong>Status:</strong> {anime.status ?? "Unknown"}</p>
-      <p><strong>Rating:</strong> {anime.rating ?? "Unknown"}</p>
-
-      <h2>Synopsis</h2>
-      <p>{anime.synopsis || "No synopsis available."}</p>
-
-      <hr style={{ margin: "24px 0" }} />
-
-      <h2>Anime Rating / Review</h2>
-
-      {existingRatingId ? (
-        <p style={{ color: "green" }}>You already rated this anime. You can update it below.</p>
-      ) : (
-        <p>You have not rated this anime yet.</p>
-      )}
-
-      <div style={{ marginTop: "16px", marginBottom: "24px" }}>
-        <label><strong>Rating (1–10)</strong></label>
-        <br />
-        <select
-          value={rating}
-          onChange={(e) => setRating(Number(e.target.value))}
-          style={{ marginTop: "8px", padding: "8px" }}
-        >
-          <option value={0}>Select rating</option>
-          {[...Array(10)].map((_, i) => (
-            <option key={i + 1} value={i + 1}>
-              {i + 1}
-            </option>
-          ))}
-        </select>
-
-        <br /><br />
-
-        <label><strong>Review</strong></label>
-        <br />
-        <textarea
-          placeholder="Write your review..."
-          value={reviewText}
-          onChange={(e) => setReviewText(e.target.value)}
-          rows="5"
-          cols="60"
-          style={{ marginTop: "8px", padding: "8px" }}
-        />
-
-        <br /><br />
-
-        <button onClick={submitAnimeRating} disabled={submitting}>
-          {submitting
-            ? "Saving..."
-            : existingRatingId
-              ? "Update Rating"
-              : "Submit Rating"}
-        </button>
+      <div className="flex flex-col justify-center text-white gap-2">
+        <p><strong>Score:</strong> {anime.score ?? "N/A"}</p>
+        <p><strong>Episodes:</strong> {anime.episodes ?? "Unknown"}</p>
+        <p><strong>Status:</strong> {anime.status ?? "Unknown"}</p>
+        <p><strong>Rating:</strong> {anime.rating ?? "Unknown"}</p>
       </div>
 
-      <hr style={{ margin: "24px 0" }} />
-
-      <h2>Community Reviews</h2>
-
-      <button onClick={handleToggleReviews} style={{ marginBottom: "16px" }}>
-        {showReviews ? "Hide Reviews" : "Show Reviews"}
-      </button>
-
-      {showReviews && (
-        <div>
-          {reviewsLoading && reviews.length === 0 ? (
-            <p>Loading reviews...</p>
-          ) : reviews.length === 0 ? (
-            <p>No reviews yet.</p>
-          ) : (
-            <>
-              {reviews.map((review) => (
-                <div
-                  key={review.id}
-                  style={{
-                    border: "1px solid #444",
-                    padding: "10px",
-                    marginBottom: "10px",
-                    borderRadius: "8px",
-                    backgroundColor: "#1f2937",
-                    color: "#f9fafb",
-                  }}
-                >
-                  <p>
-                    <strong>Rating:</strong> {review.rating}/10
-                  </p>
-
-                  <p>
-                    <strong>Date:</strong> {formatDate(review.created_at)}
-                  </p>
-
-                  {currentUser && review.user_id === currentUser.id && (
-                    <p style={{ color: "blue" }}><strong>Your review</strong></p>
-                  )}
-
-                  <p>{review.review_text || "No written review provided."}</p>
-                </div>
-              ))}
-
-              {hasMoreReviews && (
-                <button
-                  onClick={handleLoadMoreReviews}
-                  disabled={reviewsLoading}
-                >
-                  {reviewsLoading ? "Loading..." : "Load 10 More"}
-                </button>
-              )}
-
-              {!hasMoreReviews && reviews.length > 0 && (
-                <p>No more reviews to load.</p>
-              )}
-            </>
-          )}
-        </div>
-      )}
-
-      <hr style={{ margin: "24px 0" }} />
-
-      <h2>Episodes</h2>
-      <p>View the episode list and rate individual episodes on a separate page.</p>
-
-      <Link
-        to={`/anime/${id}/episodes`}
-        style={{
-          display: "inline-block",
-          padding: "10px 16px",
-          border: "1px solid #ccc",
-          borderRadius: "8px",
-          textDecoration: "none",
-          color: "inherit",
-          marginTop: "8px",
-        }}
-      >
-        View Episodes
-      </Link>
-
-      <hr style={{ margin: "24px 0" }} />
-
-      {/* Discussion Section */}
-      <h2>Community Discussion</h2>
-      <p>Share your thoughts and discuss this anime with other fans.</p>
-      <Link
-        to={`/anime/${id}/discussions`}
-        className="inline-block mt-2 px-5 py-2.5 rounded-full bg-[#b6353a] text-white text-sm font-medium hover:bg-[#9e2d31] transition-colors"
-      >
-        Go to Discussion Board
-      </Link>
     </div>
+
+    {/* Synopsis */}
+    <h2 className="text-xl font-semibold text-white mb-2">Synopsis</h2>
+    <p className="text-gray-200 mb-6">
+      {anime.synopsis || "No synopsis available."}
+    </p>
+
+    <hr className="border-gray-600 my-6" />
+
+    {/* Rating Section */}
+    <h2 className="text-xl font-semibold text-white mb-2">
+      Anime Rating / Review
+    </h2>
+
+    {existingRatingId ? (
+      <p className="text-green-400">
+        You already rated this anime. You can update it below.
+      </p>
+    ) : (
+      <p className="text-gray-300">
+        You have not rated this anime yet.
+      </p>
+    )}
+
+    <div className="mt-4 mb-6">
+
+      <label className="text-white font-semibold">Rating (1–10)</label>
+      <br />
+      <select
+        value={rating}
+        onChange={(e) => setRating(Number(e.target.value))}
+        className="mt-2 px-3 py-2 rounded-md text-black bg-white"
+      >
+        <option value={0}>Select rating</option>
+        {[...Array(10)].map((_, i) => (
+          <option key={i + 1} value={i + 1}>
+            {i + 1}
+          </option>
+        ))}
+      </select>
+
+      <br /><br />
+
+      <label className="text-white font-semibold">Review</label>
+      <br />
+      <textarea
+        placeholder="Write your review..."
+        value={reviewText}
+        onChange={(e) => setReviewText(e.target.value)}
+        rows="5"
+        className="mt-2 w-full max-w-xl px-3 py-2 rounded-md text-black bg-white"
+      />
+
+      <br /><br />
+
+      <button
+        onClick={submitAnimeRating}
+        disabled={submitting}
+        className="px-5 py-2 rounded-full bg-gray-300/90 text-black font-semibold border border-gray-400 hover:bg-gray-200 transition"
+      >
+        {submitting
+          ? "Saving..."
+          : existingRatingId
+            ? "Update Rating"
+            : "Submit Rating"}
+      </button>
+    </div>
+
+    <hr className="border-gray-600 my-6" />
+
+    {/* Reviews */}
+    <h2 className="text-xl font-semibold text-white mb-3">
+      Community Reviews
+    </h2>
+
+    <button
+      onClick={handleToggleReviews}
+      className="mb-4 px-4 py-2 rounded-full bg-gray-300/90 text-black font-semibold hover:bg-gray-200 transition"
+    >
+      {showReviews ? "Hide Reviews" : "Show Reviews"}
+    </button>
+
+    {showReviews && (
+      <div>
+        {reviewsLoading && reviews.length === 0 ? (
+          <p className="text-gray-300">Loading reviews...</p>
+        ) : reviews.length === 0 ? (
+          <p className="text-gray-300">No reviews yet.</p>
+        ) : (
+          <>
+            {reviews.map((review) => (
+              <div
+                key={review.id}
+                className="border border-gray-600 rounded-lg p-4 mb-3 bg-gray-700 text-white"
+              >
+                <p><strong>Rating:</strong> {review.rating}/10</p>
+                <p><strong>Date:</strong> {formatDate(review.created_at)}</p>
+
+                {currentUser && review.user_id === currentUser.id && (
+                  <p className="text-blue-300 font-semibold">Your review</p>
+                )}
+
+                <p>{review.review_text || "No written review provided."}</p>
+              </div>
+            ))}
+
+            {hasMoreReviews && (
+              <button
+                onClick={handleLoadMoreReviews}
+                disabled={reviewsLoading}
+                className="px-4 py-2 rounded-full bg-gray-300/90 text-black font-semibold hover:bg-gray-200 transition"
+              >
+                {reviewsLoading ? "Loading..." : "Load 10 More"}
+              </button>
+            )}
+
+            {!hasMoreReviews && reviews.length > 0 && (
+              <p className="text-gray-300 mt-2">No more reviews to load.</p>
+            )}
+          </>
+        )}
+      </div>
+    )}
+
+    <hr className="border-gray-600 my-6" />
+
+    {/* Episodes */}
+    <h2 className="text-xl font-semibold text-white mb-2">Episodes</h2>
+    <p className="text-gray-300 mb-2">
+      View the episode list and rate individual episodes on a separate page.
+    </p>
+
+    <Link
+      to={`/anime/${id}/episodes`}
+      className="inline-block px-5 py-2 rounded-full bg-gray-300/90 text-black font-semibold border border-gray-400 hover:bg-gray-200 transition"
+    >
+      View Episodes
+    </Link>
+
+    <hr className="border-gray-600 my-6" />
+
+    {/* Discussion */}
+    <h2 className="text-xl font-semibold text-white mb-2">
+      Community Discussion
+    </h2>
+    <p className="text-gray-300 mb-2">
+      Share your thoughts and discuss this anime with other fans.
+    </p>
+
+    <Link
+      to={`/anime/${id}/discussions`}
+      className="inline-block px-5 py-2 rounded-full bg-[#b6353a] text-white font-medium hover:bg-[#9e2d31] transition"
+    >
+      Go to Discussion Board
+    </Link>
+
+  </div>
+</div>
   );
 }
 

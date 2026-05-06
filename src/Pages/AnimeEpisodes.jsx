@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import EpisodeCard from "../components/EpisodeCard";
+import bgImage from "../assets/generalbackground.png"; // adjust path as needed
+
 
 function AnimeEpisodes() {
   const { id } = useParams();
@@ -123,41 +125,63 @@ function AnimeEpisodes() {
     );
   }
 
-  return (
-    <div style={{ padding: "20px" }}>
-      <Link to={`/anime/${id}`}>← Back to Anime Details</Link>
+  return (<div
+  className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed px-6 py-10"
+  style={{ backgroundImage: `url(${bgImage})` }}
+>
+  <div className="max-w-5xl mx-auto bg-gray-800/90 rounded-2xl border border-gray-600 p-6">
 
-      <h1>{animeTitle} Episodes</h1>
+    <Link
+      to={`/anime/${id}`}
+      className="inline-block mb-4 text-blue-300 hover:underline"
+    >
+      ← Back to Anime Details
+    </Link>
 
-      {episodes.length === 0 ? (
-        <p>No episodes found.</p>
-      ) : (
-        <div>
-          {episodes.slice(0, visibleEpisodeCount).map((episode) => (
+    <h1 className="text-3xl font-bold text-white mb-6">
+      {animeTitle} Episodes
+    </h1>
+
+    {episodes.length === 0 ? (
+      <p className="text-gray-300">No episodes found.</p>
+    ) : (
+      <div className="flex flex-col gap-4">
+
+        {episodes.slice(0, visibleEpisodeCount).map((episode) => (
+          <div
+            key={episode.mal_id}
+            className="bg-gray-700/70 border border-gray-600 rounded-xl p-4"
+          >
             <EpisodeCard
-              key={episode.mal_id}
               animeId={parseInt(id)}
               episode={episode}
               currentUser={currentUser}
             />
-          ))}
+          </div>
+        ))}
 
-          {hasMoreEpisodesToShow && (
-            <button
-              onClick={handleLoadMoreEpisodes}
-              disabled={loadingMoreEpisodes}
-              style={{ marginTop: "12px" }}
-            >
-              {loadingMoreEpisodes ? "Loading..." : "Load 20 More Episodes"}
-            </button>
-          )}
+        {hasMoreEpisodesToShow && (
+          <button
+            onClick={handleLoadMoreEpisodes}
+            disabled={loadingMoreEpisodes}
+            className="mt-3 px-5 py-2 rounded-full bg-gray-300/90 text-black font-semibold border border-gray-400 hover:bg-gray-200 transition disabled:opacity-60"
+          >
+            {loadingMoreEpisodes
+              ? "Loading..."
+              : "Load 20 More Episodes"}
+          </button>
+        )}
 
-          {!hasMoreEpisodesToShow && episodes.length > 0 && (
-            <p>No more episodes to load.</p>
-          )}
-        </div>
-      )}
-    </div>
+        {!hasMoreEpisodesToShow && episodes.length > 0 && (
+          <p className="text-gray-300">
+            No more episodes to load.
+          </p>
+        )}
+
+      </div>
+    )}
+  </div>
+</div>
   );
 }
 

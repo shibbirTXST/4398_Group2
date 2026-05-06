@@ -3,6 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import PostCard from "../components/PostCard";
 import CreatePostModal from "../components/CreatePostModal";
+import bgImage from "../assets/generalbackground.png"; // adjust path as needed
+
 
 export default function DiscussionBoard() {
   const { id } = useParams();
@@ -103,69 +105,76 @@ export default function DiscussionBoard() {
   }
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-4xl mx-auto px-6 py-10">
-
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-white">
-              {isGlobal ? "Global Discussion Board" : "Anime Discussion Board"}
-            </h1>
-            <p className="text-stone-400 text-sm mt-1">
-              {isGlobal
-                ? "Discussions from all animes"
-                : `Discussions for this anime`}
-            </p>
-          </div>
-          {currentUser ? (
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="px-4 py-2 rounded-full bg-[#b6353a] text-white text-sm font-medium hover:bg-[#9e2d31] transition-colors"
-            >
-              Create Post
-            </button>
-          ) : (
-            <Link
-              to="/signin"
-              className="px-4 py-2 rounded-full border border-[#b6353a] text-[#b6353a] text-sm font-medium hover:bg-[#b6353a]/10 transition-colors"
-            >
-              Log in to post
-            </Link>
-          )}
-        </div>
-
-        {/* Posts */}
-        {loading ? (
-          <p className="text-stone-400">Loading posts...</p>
-        ) : posts.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-stone-400 text-lg">No posts yet.</p>
-            <p className="text-stone-500 text-sm mt-1">
-              Be the first to start a discussion!
-            </p>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-4">
-            {posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                currentUser={currentUser}
-                animeTitle={animeTitles[post.anime_id]}
-                showAnimeLabel={isGlobal}
-              />
-            ))}
-          </div>
-        )}
+  <div
+  className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed px-6 py-10"
+  style={{ backgroundImage: `url(${bgImage})` }}
+>
+  <div className="max-w-4xl mx-auto bg-gray-800/90 rounded-2xl border border-gray-600 px-6 py-10">
+    {/* Header */}
+    <div className="flex items-center justify-between mb-8">
+      <div>
+        <h1 className="text-2xl font-bold text-white">
+          {isGlobal ? "Global Discussion Board" : "Anime Discussion Board"}
+        </h1>
+        <p className="text-gray-300 text-sm mt-1">
+          {isGlobal
+            ? "Discussions from all animes"
+            : `Discussions for this anime`}
+        </p>
       </div>
 
-      {showCreateModal && (
-        <CreatePostModal
-          onSubmit={handleCreatePost}
-          onClose={() => setShowCreateModal(false)}
-        />
+      {currentUser ? (
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="px-5 py-2 rounded-full bg-[#b6353a] text-white text-sm font-medium border border-[#d55a5f] hover:bg-[#9e2d31] transition-colors"
+        >
+          Create Post
+        </button>
+      ) : (
+        <Link
+          to="/signin"
+          className="px-5 py-2 rounded-full border border-[#b6353a] text-[#ffb4b8] text-sm font-medium hover:bg-[#b6353a]/20 transition-colors"
+        >
+          Log in to post
+        </Link>
       )}
     </div>
+
+    {/* Posts */}
+    {loading ? (
+      <p className="text-gray-300">Loading posts...</p>
+    ) : posts.length === 0 ? (
+      <div className="text-center py-20 bg-gray-700/60 border border-gray-600 rounded-xl">
+        <p className="text-gray-200 text-lg">No posts yet.</p>
+        <p className="text-gray-400 text-sm mt-1">
+          Be the first to start a discussion!
+        </p>
+      </div>
+    ) : (
+      <div className="flex flex-col gap-4">
+        {posts.map((post) => (
+          <div
+            key={post.id}
+            className="bg-gray-700/70 border border-gray-600 rounded-xl p-4"
+          >
+            <PostCard
+              post={post}
+              currentUser={currentUser}
+              animeTitle={animeTitles[post.anime_id]}
+              showAnimeLabel={isGlobal}
+            />
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+
+  {showCreateModal && (
+    <CreatePostModal
+      onSubmit={handleCreatePost}
+      onClose={() => setShowCreateModal(false)}
+    />
+  )}
+</div>
   );
 }
