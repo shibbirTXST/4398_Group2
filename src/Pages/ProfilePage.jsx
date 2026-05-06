@@ -401,6 +401,93 @@ export default function ProfilePage({ logout }) {
             />
           )}
         </div>
+
+        {/* Favorite Animes */}
+        <div className="mb-6">
+          <label className="text-sm font-semibold text-gray-300 block mb-2">
+            Favorite Animes ({editFavorites.length}/4)
+          </label>
+          <div className="grid grid-cols-4 gap-2 mb-3">
+            {editFavorites.map((anime) => (
+              <div key={anime.mal_id} className="relative group">
+                <div
+                  className="rounded-lg overflow-hidden bg-gray-700"
+                  style={{ aspectRatio: "3/4" }}
+                >
+                  {anime.image_url && (
+                    <img src={anime.image_url} alt={anime.title} className="w-full h-full object-cover" />
+                  )}
+                </div>
+                <button
+                  onClick={() => removeFavorite(anime.mal_id)}
+                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  x
+                </button>
+                <p className="text-xs text-gray-300 line-clamp-1 mt-1">{anime.title}</p>
+              </div>
+            ))}
+
+            {Array.from({ length: 4 - editFavorites.length }).map((_, i) => (
+              <div
+                key={i}
+                className="rounded-lg border-2 border-dashed border-gray-600 flex items-center justify-center"
+                style={{ aspectRatio: "3/4" }}
+              >
+                <span className="text-gray-500 text-xl">+</span>
+              </div>
+            ))}
+          </div>
+
+          {editFavorites.length < 4 && (
+            <div className="relative">
+              <input
+                type="text"
+                value={animeSearchQuery}
+                onChange={(e) => setAnimeSearchQuery(e.target.value)}
+                placeholder="Search to add an anime..."
+                className="w-full border border-gray-600 bg-gray-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#b6353a]/30"
+              />
+              {(searchingAnime || animeSearchResults.length > 0) && (
+                <div className="absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-10 max-h-52 overflow-y-auto mt-1">
+                  {searchingAnime && (
+                    <p className="p-3 text-sm text-gray-400">Searching...</p>
+                  )}
+                  {animeSearchResults.map((anime) => (
+                    <button
+                      key={anime.mal_id}
+                      onClick={() => addFavorite(anime)}
+                      className="w-full flex items-center gap-3 p-2 hover:bg-gray-700 text-left transition-colors"
+                    >
+                      {anime.images?.jpg?.image_url && (
+                        <img src={anime.images.jpg.image_url} alt={anime.title} className="w-8 h-11 object-cover rounded" />
+                      )}
+                      <span className="text-sm text-white">{anime.title}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {saveError && <p className="text-red-400 text-sm mb-4">{saveError}</p>}
+
+        <div className="flex gap-3 justify-end">
+          <button
+            onClick={() => setEditMode(false)}
+            className="px-4 py-2 rounded-lg border border-gray-600 text-sm text-gray-300 hover:bg-gray-700 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={saveProfile}
+            disabled={saving}
+            className="px-4 py-2 rounded-lg bg-[#b6353a] text-white text-sm font-medium hover:bg-[#9e2d31] transition-colors disabled:opacity-50"
+          >
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
       </div>
     </div>
   )}
