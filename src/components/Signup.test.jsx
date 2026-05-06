@@ -23,6 +23,9 @@ const renderSignup = () =>
   );
 
 describe("Signup Form", () => {
+  beforeEach(() => {
+    window.alert = vi.fn();
+  });
 
   test("successful sign up with valid credentials", async () => {
     supabase.auth.signUp.mockResolvedValue({ error: null });

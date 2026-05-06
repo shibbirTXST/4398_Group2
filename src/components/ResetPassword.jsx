@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -12,6 +13,12 @@ const ResetPassword = () => {
     e.preventDefault();
     setError("");
     setMessage("");
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
 
     const { error } = await supabase.auth.updateUser({
       password: password
@@ -36,6 +43,14 @@ const ResetPassword = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="border w-full mb-3 p-2 rounded bg-black text-white placeholder-white"
+          />
+          
+          <input
+            placeholder="Confirm New Password"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             className="border w-full mb-3 p-2 rounded bg-black text-white placeholder-white"
           />
 
