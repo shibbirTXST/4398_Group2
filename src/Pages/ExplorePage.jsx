@@ -29,19 +29,32 @@ function ExplorePage() {
 
   const [animeList, setAnimeList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [mode, setMode] = useState("default");
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+
+  useEffect(() => {
+    setPage(1);
+    setAnimeList([]);
+  }, [selectedGenres.join(",")]);
 
   useEffect(() => {
     async function fetchExploreAnime() {
       try {
-        setLoading(true);
+        if (page === 1) {
+          setLoading(true);
+        } else {
+          setLoadingMore(true);
+        }
+
         setError("");
 
-        let url = "https://api.jikan.moe/v4/top/anime";
+        let url = `https://api.jikan.moe/v4/top/anime?page=${page}`;
 
         if (selectedGenres.length > 0) {
-          url = `https://api.jikan.moe/v4/anime?genres=${selectedGenres.join(",")}&order_by=score&sort=desc`;
+          url = `https://api.jikan.moe/v4/anime?genres=${selectedGenres.join(",")}&order_by=score&sort=desc&page=${page}`;
           setMode("genre");
         } else {
           setMode("default");
@@ -54,17 +67,36 @@ function ExplorePage() {
         }
 
         const data = await response.json();
-        setAnimeList(data.data || []);
+        const newAnime = data.data || [];
+        const nextPageExists = data.pagination?.has_next_page || false;
+
+        if (page === 1) {
+          setAnimeList(newAnime);
+        } else {
+          setAnimeList((prev) => {
+            const existingIds = new Set(prev.map((anime) => anime.mal_id));
+            const filteredNewAnime = newAnime.filter(
+              (anime) => !existingIds.has(anime.mal_id)
+            );
+            return [...prev, ...filteredNewAnime];
+          });
+        }
+
+        setHasMore(nextPageExists);
       } catch (err) {
         setError(err.message);
-        setAnimeList([]);
+
+        if (page === 1) {
+          setAnimeList([]);
+        }
       } finally {
         setLoading(false);
+        setLoadingMore(false);
       }
     }
 
     fetchExploreAnime();
-  }, [selectedGenres.join(",")]);
+  }, [selectedGenres.join(","), page]);
 
   function handleGenreToggle(genreId) {
     const genreIdString = String(genreId);
@@ -104,6 +136,12 @@ function ExplorePage() {
       }
     } catch (err) {
       alert(err.message);
+    }
+  }
+
+  function handleLoadMore() {
+    if (!loadingMore && hasMore) {
+      setPage((prev) => prev + 1);
     }
   }
 

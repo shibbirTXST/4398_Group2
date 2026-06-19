@@ -98,12 +98,12 @@ const NavBar = () => {
                     >
                         Discussions
                     </NavLink>
-                    {/* <NavLink
-                        to="/placeholder"
+                    <NavLink
+                        to="/foryou"
                         className={({ isActive }) => `text-sm pb-1 transition-colors ${isActive ? "font-bold text-[#b6353a] border-b-2 border-[#b6353a]" : "font-medium text-stone-600 hover:text-[#b6353a]"}`}
                     >
-                        Placeholder
-                    </NavLink> */}
+                        For You
+                    </NavLink>
                 </div>
 
                 {/* Action Icons & Profile */}

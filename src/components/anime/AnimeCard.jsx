@@ -10,7 +10,7 @@ function AnimeCard({ anime }) {
         {anime.images?.jpg?.image_url && (
           <img
             src={anime.images.jpg.image_url}
-            alt={anime.title}
+            alt={anime.title_english || anime.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         )}
@@ -18,7 +18,7 @@ function AnimeCard({ anime }) {
 
       <div>
         <h3 className="font-bold text-800 line-clamp-2 leading-tight group-hover:text-red-500 transition-colors">
-          {anime.title}
+          {anime.title_english || anime.title}
         </h3>
 
         <div className="flex gap-2 items-center mt-1">

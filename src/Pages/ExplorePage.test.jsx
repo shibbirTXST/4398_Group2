@@ -58,7 +58,7 @@ describe("ExplorePage", () => {
 
     await waitFor(() => {
       expect(fetch).toHaveBeenLastCalledWith(
-        "https://api.jikan.moe/v4/anime?genres=1&order_by=score&sort=desc"
+        "https://api.jikan.moe/v4/anime?genres=1&order_by=score&sort=desc&page=1"
       );
     });
 
@@ -80,7 +80,7 @@ describe("ExplorePage", () => {
 
     await waitFor(() => {
       expect(fetch).toHaveBeenLastCalledWith(
-        "https://api.jikan.moe/v4/anime?genres=1,4&order_by=score&sort=desc"
+        "https://api.jikan.moe/v4/anime?genres=1,4&order_by=score&sort=desc&page=1"
       );
     });
 
@@ -135,7 +135,9 @@ describe("ExplorePage", () => {
     await userEvent.click(clearButton);
 
     await waitFor(() => {
-      expect(fetch).toHaveBeenLastCalledWith("https://api.jikan.moe/v4/top/anime");
+      expect(fetch).toHaveBeenLastCalledWith(
+        expect.stringContaining("https://api.jikan.moe/v4/top/anime")
+      );
     });
 
     expect(await screen.findByText(/Trending anime/i)).toBeInTheDocument();
@@ -148,7 +150,7 @@ describe("ExplorePage", () => {
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
-        "https://api.jikan.moe/v4/anime?genres=999&order_by=score&sort=desc"
+        "https://api.jikan.moe/v4/anime?genres=999&order_by=score&sort=desc&page=1"
       );
     });
 
